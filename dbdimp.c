@@ -3374,10 +3374,18 @@ AV *dbd_st_fetch(SV *sth, imp_sth_t *imp_sth)
                     "not set and/or LongReadLen too small)");
                 return Nullav;
             }
-            /* LongTruncOk true, just ensure perl has the right length
-             * for the truncated data.
-             */
-            sv_setpvn(sv, (char*)fbh->data, fbh->ColDisplaySize);
+            switch(fdh->ftype) {
+                case SQL_VARCHAR:
+                {
+                    sv_setpvn(sv, (char*)fbh->data, fbh->datalen);
+                }
+                default:
+
+                    /* LongTruncOk true, just ensure perl has the right length
+                     * for the truncated data.
+                     */
+                    sv_setpvn(sv, (char*)fbh->data, fbh->ColDisplaySize);
+            }
         }  else {
             switch(fbh->ftype) {
 #ifdef TIMESTAMP_STRUCT /* iODBC doesn't define this */
